@@ -1,3 +1,2 @@
-# Experimental data used in "Resolving competing hypotheses: are novel or locally adapted pathogens more devastating?" Sauer et al. submitted will be published here upon acceptance. 
-
+# Code and data for: Sauer et al. in review "Are novel or locally adapted pathogens more devastating and why?: Resolving opposing hypotheses" 
 
