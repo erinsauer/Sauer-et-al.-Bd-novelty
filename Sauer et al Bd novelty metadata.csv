@@ -1,0 +1,19 @@
+ID,unique animal ID
+Host,host location
+Bd,bd location
+Treatment,treatment group
+LoN,local or novel
+mass,mass prior to exposure
+mass2,mass at the end of the experiment or at death
+dmass,mass - mass2
+mortality,"binary: 1=died, 0=survived to the end of the experiment"
+Date,"day individual died or ""70"" if they lived to day 70"
+mortality14,binary mortality at day 14
+Date14,"day individual died or ""14"" if they lived to day 14"
+Zoospore,zoospore load on day 14 on at death if that occurred before day 14
+logZoospore,log transformed zoospore
+Dist,euclidean distance (km) between the host and Bd collection locations
+HostGenDist,phylogenetic distance between the individual and the host species representing the local this individual was exposed to Bd from
+IB,Bd phylogenetic distance where LA is EV001 (middle diverging)
+LB,Bd phylogenetic distance where LA is BdBE4 (late diverging)
+EB,Bd phylogenetic distance where LA is JEL627 (early diverging)
