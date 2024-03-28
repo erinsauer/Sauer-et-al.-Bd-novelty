@@ -111,11 +111,12 @@ library(survival)
 library(coxme)
 library(car)
 library(tidyverse)
+library(emmeans)
 
 surv70 <- read.csv("5x6 experimental data.csv")
 
 #survival model
-surv <-coxph(Surv(Date, mortality) ~   Host + Bd +mass+ log(Dist2+1), 
+surv <-coxph(Surv(Date, mortality) ~   Host + Bd +mass+ log(Dist+1), 
              data = surv70, na.action="na.fail")
 summary(surv)
 Anova(surv)
@@ -170,7 +171,7 @@ fig2a <- ggplot(pps, aes(x=log10(V2+1), y=points))+
 fig2a
 
 ###### zoospore load analysis #########
-zglm <- glm(logZoospore ~ Host + Bd + mass + log(Dist2+1) + Date14, data=surv70, 
+zglm <- glm(logZoospore ~ Host + Bd + mass + log(Dist+1) + Date14, data=surv70, 
             na.action="na.fail")
 summary(zglm)
 Anova(zglm)
@@ -178,7 +179,7 @@ Anova(zglm)
 
 ###### Bd prevalence analysis ########
 surv70$inf.status <- ifelse(surv70$Zoospore>0, 1, ifelse(surv70$Zoospore==0, 0, NA)) 
-prvl <- glm(inf.status ~ Host + Bd  + log(Dist2+1) + mass, data=surv70, family=binomial(link="logit"))
+prvl <- glm(inf.status ~ Host + Bd  + log(Dist+1) + mass, data=surv70, family=binomial(link="logit"))
 summary(prvl)
 Anova(prvl)
 
@@ -274,8 +275,8 @@ figS2c <- emmeans(zglm, list(pairwise ~ Host), adjust = "tukey")
 str(summary(figS2c$`emmeans of Host`))
 figS2c <- summary(figS2c$`emmeans of Host`)[1:6]
 figS2c$emmean <- log2prob(figS2c$emmean)
-figS2c$asymp.LCL <- log2prob(figS2c$asymp.LCL)
-figS2c$asymp.UCL <- log2prob(figS2c$asymp.UCL)
+figS2c$lower.CL <- log2prob(figS2c$lower.CL)
+figS2c$upper.CL <- log2prob(figS2c$upper.CL)
 plot(emmean~Host, data=figS2c)
 figS2c$tukey <- c("A","A,B", "A,B", "A,B", "B")
 figS2c
@@ -284,8 +285,8 @@ figS2d <- emmeans(zglm, list(pairwise ~ Bd), adjust = "tukey")
 str(summary(figS2d$`emmeans of Bd`))
 figS2d <- summary(figS2d$`emmeans of Bd`)[1:6]
 figS2d$emmean <- log2prob(figS2d$emmean)
-figS2d$asymp.LCL <- log2prob(figS2d$asymp.LCL)
-figS2d$asymp.UCL <- log2prob(figS2d$asymp.UCL)
+figS2d$lower.CL <- log2prob(figS2d$lower.CL)
+figS2d$upper.CL <- log2prob(figS2d$upper.CL)
 plot(emmean~Bd, data=figS2d)
 figS2d$tukey <- c("A","B", "C", "A", "A", "B")
 figS2d
@@ -318,7 +319,7 @@ S2b<-ggplot(figS2b, aes(x=Bd, y=emmean))+
   labs(y="", x="", title= "Bd identity")
 S2c<-ggplot(figS2c, aes(x=Host, y=emmean))+
   geom_point(size=3)+ylim(0.4, 0.8)+
-  geom_errorbar(ymin=figS2c$asymp.LCL, ymax=figS2c$asymp.UCL, size=.3,width=.2)+
+  geom_errorbar(ymin=figS2c$lower.CL, ymax=figS2c$upper.CL, size=.3,width=.2)+
   theme(axis.text=element_text(size=15),
         panel.background=element_blank(),
         panel.grid.major.y=element_line(color="grey", size=.2),
@@ -327,11 +328,11 @@ S2c<-ggplot(figS2c, aes(x=Host, y=emmean))+
         axis.title=element_text(size=20),
         plot.title = element_text(size=25, hjust=0.5))+
   geom_text(data=figS2c, vjust=0,
-            aes(x=Host, y=0.02+asymp.UCL,label=tukey))+
+            aes(x=Host, y=0.02+upper.CL,label=tukey))+
   labs(y="log10(Zoospore equivalent)", x="", title= "")
 S2d<-ggplot(figS2d, aes(x=Bd, y=emmean))+
   geom_point(size=3)+ylim(0.4, 0.8)+
-  geom_errorbar(ymin=figS2d$asymp.LCL, ymax=figS2d$asymp.UCL, size=.3,width=.2)+
+  geom_errorbar(ymin=figS2d$lower.CL, ymax=figS2d$upper.CL, size=.3,width=.2)+
   theme(axis.text=element_text(size=15),
         panel.background=element_blank(),
         panel.grid.major.y=element_line(color="grey", size=.2),
@@ -340,7 +341,7 @@ S2d<-ggplot(figS2d, aes(x=Bd, y=emmean))+
         axis.title=element_text(size=20),
         plot.title = element_text(size=25, hjust=0.5))+
   geom_text(data=figS2d, vjust=0,
-            aes(x=Bd, y=0.02+asymp.UCL,label=tukey))+
+            aes(x=Bd, y=0.02+upper.CL,label=tukey))+
   labs(y="", x="", title= "")
 S2a;S2b;S2c;S2d
 library(ggpubr)
@@ -348,7 +349,7 @@ ggarrange(S2a,S2b,S2c,S2d,figS2e,figS2f, ncol=2, nrow=3)
 
 ###### novel metric model comparisons #############
 #survival
-surv <-coxph(Surv(Date, mortality) ~   Host + Bd +mass+ log(Dist2+1), 
+surv <-coxph(Surv(Date, mortality) ~   Host + Bd +mass+ log(Dist+1), 
              data = surv70, na.action="na.fail")
 surv.null <-coxph(Surv(Date, mortality) ~   Host + Bd +mass, 
              data = surv70, na.action="na.fail")
@@ -358,7 +359,7 @@ surv.null <-coxph(Surv(Date, mortality) ~   Host + Bd +mass,
                   data = surv70, na.action="na.fail")
 
 surv70.sub <- subset(surv70, Bd != "QC")
-surv.sub <-coxph(Surv(Date, mortality) ~   Host + Bd +mass +log(Dist2+1), 
+surv.sub <-coxph(Surv(Date, mortality) ~   Host + Bd +mass +log(Dist+1), 
                   data = surv70.sub, na.action="na.fail")
 surv.host <-coxph(Surv(Date, mortality) ~   Host + Bd +mass +HostGenDist, 
                   data = surv70.sub, na.action="na.fail")
@@ -373,10 +374,10 @@ AIC(surv.sub);AIC(surv.host);AIC(surv.IB);
 AIC(surv.LB);AIC(surv.EB)
 
 #prevalence
-prvl <- glm(inf.status ~ Host + Bd  + log(Dist2+1) + mass, data=surv70, family=binomial(link="logit"))
+prvl <- glm(inf.status ~ Host + Bd  + log(Dist+1) + mass, data=surv70, family=binomial(link="logit"))
 prvl.null <- glm(inf.status ~ Host + Bd  + mass, data=surv70, family=binomial(link="logit"))
 prvl.binary <- glm(inf.status ~ Host + Bd  + mass +LoN, data=surv70, family=binomial(link="logit"))
-prvl.sub <- glm(inf.status ~ Host + Bd  + log(Dist2+1) + mass, data=surv70.sub, family=binomial(link="logit"))
+prvl.sub <- glm(inf.status ~ Host + Bd  + log(Dist+1) + mass, data=surv70.sub, family=binomial(link="logit"))
 prvl.host <- glm(inf.status ~ Host + Bd  + HostGenDist + mass, data=surv70.sub, family=binomial(link="logit"))
 prvl.IB <- glm(inf.status ~ Host + Bd  + IB + mass, data=surv70.sub, family=binomial(link="logit"))
 prvl.EB <- glm(inf.status ~ Host + Bd  + EB + mass, data=surv70.sub, family=binomial(link="logit"))
@@ -386,13 +387,13 @@ AIC(prvl.sub);AIC(prvl.host);AIC(prvl.IB);
 AIC(prvl.LB);AIC(prvl.EB)
 
 # zoospore load
-zglm <- glm(logZoospore ~ Host + Bd + mass + log(Dist2+1) + Date14, data=surv70, 
+zglm <- glm(logZoospore ~ Host + Bd + mass + log(Dist+1) + Date14, data=surv70, 
             na.action="na.fail")
-zglm.null <- glm(logZoospore ~ Host + Bd + mass + log(Dist2+1) + Date14, data=surv70, 
+zglm.null <- glm(logZoospore ~ Host + Bd + mass  + Date14, data=surv70, 
             na.action="na.fail")
-zglm.binar <- glm(logZoospore ~ Host + Bd + mass + log(Dist2+1) + Date14, data=surv70, 
+zglm.binary <- glm(logZoospore ~ Host + Bd + mass + LoN + Date14, data=surv70, 
             na.action="na.fail")
-zglm.sub <- glm(logZoospore ~ Host + Bd + mass + log(Dist2+1) + Date14, data=surv70.sub, 
+zglm.sub <- glm(logZoospore ~ Host + Bd + mass + log(Dist+1) + Date14, data=surv70.sub, 
             na.action="na.fail")
 zglm.host <- glm(logZoospore ~ Host + Bd + mass + HostGenDist + Date14, data=surv70.sub, 
             na.action="na.fail")
@@ -409,9 +410,7 @@ AIC(zglm.LB);AIC(zglm.EB)
 
 
 ######### meta analysis ##############
-
-library(metafor)
-library(blme)
+library(blmer)
 library(car)
 
 bdma <- read.csv("Sauer et al. 2020 data subset.csv")
@@ -423,4 +422,3 @@ blme.ma <- blmer(ln.or ~ logdose + Superfam + logdistkm +
                   cov.prior = NULL, na.action="na.fail")
 summary(blme.ma)
 Anova(blme.ma)
-
