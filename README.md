@@ -8,3 +8,5 @@ See metadata file for details
 
 Code for all analyses: "Code for Sauer et al Pathogen novelty.R"
 
+Manuscript DOI: 10.1111/ele.14431 
+
